@@ -1,0 +1,19 @@
+
+spring:
+  datasource:
+    url: jdbc:oracle:thin:@//10.82.71.103:1521/orcl
+    username: BO
+    password: Tcbs1234
+    driver-class-name: oracle.jdbc.OracleDriver
+    hikari:
+      maxLifetime: '2000000'
+      poolName: HikariPoolBooks
+      connectionTimeout: '30000'
+      minimumIdle: '5'
+      idleTimeout: '30000'
+      maximumPoolSize: '20'
+  jpa:
+    hibernate:
+#      ddl-auto: create
+      use-new-id-generator-mappings: 'false'
+    database-platform: org.hibernate.dialect.Oracle12cDialect
