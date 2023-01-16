@@ -23,7 +23,7 @@ public class FilterRequest implements Serializable {
 
     private String key;
 
-    private Operator operator;
+    private FilterOperator operator;
 
     private FieldType fieldType;
 

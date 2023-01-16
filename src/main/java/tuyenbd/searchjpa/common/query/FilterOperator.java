@@ -7,12 +7,13 @@ import jakarta.persistence.criteria.Root;
 import lombok.extern.slf4j.Slf4j;
 
 import java.time.LocalDateTime;
+import java.util.Arrays;
 import java.util.List;
 
 @Slf4j
-public enum Operator {
+public enum FilterOperator {
 
-    EQUAL {
+    EQUAL("=") {
         public <T> Predicate build(Root<T> root, CriteriaBuilder cb, FilterRequest request, Predicate predicate) {
             Object value = request.getFieldType().parse(request.getValue().toString());
             Expression<?> key = root.get(request.getKey());
@@ -20,7 +21,7 @@ public enum Operator {
         }
     },
 
-    NOT_EQUAL {
+    NOT_EQUAL("!=") {
         public <T> Predicate build(Root<T> root, CriteriaBuilder cb, FilterRequest request, Predicate predicate) {
             Object value = request.getFieldType().parse(request.getValue().toString());
             Expression<?> key = root.get(request.getKey());
@@ -28,14 +29,21 @@ public enum Operator {
         }
     },
 
-    LIKE {
+    LIKE("=like=") {
         public <T> Predicate build(Root<T> root, CriteriaBuilder cb, FilterRequest request, Predicate predicate) {
             Expression<String> key = root.get(request.getKey());
             return cb.and(cb.like(cb.upper(key), "%" + request.getValue().toString().toUpperCase() + "%"), predicate);
         }
     },
 
-    IN {
+    GREATER_THAN("=like=") {
+        public <T> Predicate build(Root<T> root, CriteriaBuilder cb, FilterRequest request, Predicate predicate) {
+            Expression<String> key = root.get(request.getKey());
+            return cb.and(cb.like(cb.upper(key), "%" + request.getValue().toString().toUpperCase() + "%"), predicate);
+        }
+    },
+
+    IN("~") {
         public <T> Predicate build(Root<T> root, CriteriaBuilder cb, FilterRequest request, Predicate predicate) {
             List<Object> values = request.getValues();
             CriteriaBuilder.In<Object> inClause = cb.in(root.get(request.getKey()));
@@ -46,7 +54,7 @@ public enum Operator {
         }
     },
 
-    BETWEEN {
+    BETWEEN("=bw=") {
         public <T> Predicate build(Root<T> root, CriteriaBuilder cb, FilterRequest request, Predicate predicate) {
             Object value = request.getFieldType().parse(request.getValue().toString());
             Object valueTo = request.getFieldType().parse(request.getValueTo().toString());
@@ -69,6 +77,18 @@ public enum Operator {
         }
     };
 
-    public abstract <T> Predicate build(Root<T> root, CriteriaBuilder cb, FilterRequest request, Predicate predicate);
+    public String operator;
 
+    FilterOperator(String operator) {
+        this.operator = operator;
+    }
+
+    public static FilterOperator from(String operator) {
+        return Arrays.stream(values())
+                .filter(filterOperator -> filterOperator.operator.equals(operator))
+                .findFirst()
+                .orElseThrow();
+    }
+
+    public abstract <T> Predicate build(Root<T> root, CriteriaBuilder cb, FilterRequest request, Predicate predicate);
 }

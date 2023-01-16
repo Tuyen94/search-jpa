@@ -7,11 +7,15 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 @Data
 @Builder
@@ -41,4 +45,48 @@ public class SearchRequest implements Serializable {
         return this.sorts;
     }
 
+    public static SearchRequest from(String filterString, String sortString, int page, int size) {
+        List<FilterRequest> filters = buildFilters(filterString);
+        List<SortRequest> sorts = buildSorts(sortString);
+        return SearchRequest.builder()
+                .filters(filters)
+                .sorts(sorts)
+                .page(page)
+                .size(size)
+                .build();
+    }
+
+    public static List<FilterRequest> buildFilters(String filterString) {
+        Pattern pattern = Pattern.compile("(\\w+?)(<|>|=|>=|<=|!=|~|!~|=like=)(\\w+?),");
+        Matcher matcher = pattern.matcher(filterString + ",");
+        List<FilterRequest> filters = new ArrayList<>();
+        while (matcher.find()) {
+            var filterRequest = FilterRequest.builder()
+                    .key(matcher.group(1))
+                    .operator(FilterOperator.from(matcher.group(2)))
+                    .value(matcher.group(3))
+                    .fieldType(FieldType.STRING)
+                    .build();
+            filters.add(filterRequest);
+        }
+        return filters;
+    }
+
+    public static List<SortRequest> buildSorts(String sortString) {
+        Pattern pattern = Pattern.compile("(\\w+?)(=)(\\w+?),");
+        Matcher matcher = pattern.matcher(sortString + ",");
+        List<SortRequest> sorts = new ArrayList<>();
+        while (matcher.find()) {
+            var sort = SortRequest.builder()
+                    .key(matcher.group(1))
+                    .direction(SortDirection.valueOf(matcher.group(3)))
+                    .build();
+            sorts.add(sort);
+        }
+        return sorts;
+    }
+
+    public Pageable getPageable() {
+        return PageRequest.of(Objects.requireNonNullElse(page, 0), Objects.requireNonNullElse(size, 100));
+    }
 }
