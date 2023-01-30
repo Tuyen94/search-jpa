@@ -23,20 +23,15 @@ class SearchJpaApplicationTests {
 
 	@Test
 	void test() {
-		String search = "name=like=uyen,quantity>200+1,createTime>2023-01-13T13:52:30.374419";
+		String search = "STRING:name=like=uyen,STRING:quantity>200+1,DATE:createTime>2023-01-13T13:52:30.374419";
 		String[] filterArray = search.split(",");
 		for (String filter : filterArray) {
-			Pattern pattern = Pattern.compile("(\\w+?)(<|>|=|>=|<=|!=|~|!~|=like=)(.*)");
+			Pattern pattern = Pattern.compile("(\\w+?)(:)(\\w+?)(<|>|=|>=|<=|!=|~|!~|=like=)(.*)");
 			Matcher matcher = pattern.matcher(filter);
 			matcher.find();
-			System.out.println(matcher.group(1) + matcher.group(2) + matcher.group(3));
+			System.out.printf("%s %s %s %s%n", matcher.group(1), matcher.group(3), matcher.group(4), matcher.group(5));
 		}
-		Pattern pattern = Pattern.compile("(\\w+?)(<|>|=|>=|<=|!=|~|!~|=like=)([\\w+-[.]]+),");
-		Matcher matcher = pattern.matcher(search + ",");
-		System.out.println(matcher);
-		while (matcher.find()) {
-			System.out.println(matcher.group(1) + " " + matcher.group(2) + " " + matcher.group(3));
-		}
+
 		System.out.println(SearchRequest.buildFilters(search));
 		String sort = "a=DESC,b=ASC";
 		System.out.println(SearchRequest.buildSorts(sort));

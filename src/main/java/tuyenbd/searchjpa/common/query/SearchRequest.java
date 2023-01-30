@@ -26,6 +26,10 @@ import java.util.regex.Pattern;
 public class SearchRequest implements Serializable {
 
     private static final long serialVersionUID = 8514625832019794838L;
+    private static final int TYPE_GROUP = 1;
+    private static final int KEY_GROUP = 3;
+    private static final int OPERATOR_GROUP = 4;
+    private static final int VALUE_GROUP = 5;
 
     private List<FilterRequest> filters;
 
@@ -60,14 +64,14 @@ public class SearchRequest implements Serializable {
         String[] filterArray = filterString.split(",");
         List<FilterRequest> filters = new ArrayList<>();
         for (String filter : filterArray) {
-            Pattern pattern = Pattern.compile("(\\w+?)(<|>|=|>=|<=|!=|~|!~|=like=)(.*)");
+            Pattern pattern = Pattern.compile("(\\w+?)(:)(\\w+?)(<|>|=|>=|<=|!=|~|!~|=like=)(.*)");
             Matcher matcher = pattern.matcher(filter);
             matcher.find();
             var filterRequest = FilterRequest.builder()
-                    .key(matcher.group(1))
-                    .operator(FilterOperator.from(matcher.group(2)))
-                    .value(matcher.group(3))
-                    .fieldType(FieldType.STRING)
+                    .fieldType(FieldType.valueOf(matcher.group(TYPE_GROUP)))
+                    .key(matcher.group(KEY_GROUP))
+                    .operator(FilterOperator.from(matcher.group(OPERATOR_GROUP)))
+                    .value(matcher.group(VALUE_GROUP))
                     .build();
             filters.add(filterRequest);
         }

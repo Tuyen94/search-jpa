@@ -22,15 +22,13 @@ public enum FieldType {
 
     DATE {
         public Object parse(String value) {
-            Object date = null;
-            try {
-                DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd-MM-yyyy HH:mm:ss");
-                date = LocalDateTime.parse(value, formatter);
-            } catch (Exception e) {
-                log.info("Failed parse field type DATE {}", e.getMessage());
-            }
+            return LocalDateTime.parse(value, DateTimeFormatter.ISO_LOCAL_DATE);
+        }
+    },
 
-            return date;
+    DATETIME {
+        public Object parse(String value) {
+            return LocalDateTime.parse(value, DateTimeFormatter.ISO_LOCAL_DATE_TIME);
         }
     },
 
