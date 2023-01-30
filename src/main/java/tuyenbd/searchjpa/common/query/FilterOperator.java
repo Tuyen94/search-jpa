@@ -36,10 +36,27 @@ public enum FilterOperator {
         }
     },
 
-    GREATER_THAN("=like=") {
+    GREATER_THAN(">") {
         public <T> Predicate build(Root<T> root, CriteriaBuilder cb, FilterRequest request, Predicate predicate) {
-            Expression<String> key = root.get(request.getKey());
-            return cb.and(cb.like(cb.upper(key), "%" + request.getValue().toString().toUpperCase() + "%"), predicate);
+            return cb.and(cb.greaterThan(root.get(request.getKey()), request.getValue().toString()), predicate);
+        }
+    },
+
+    GREATER_THAN_EQUAL(">=") {
+        public <T> Predicate build(Root<T> root, CriteriaBuilder cb, FilterRequest request, Predicate predicate) {
+            return cb.and(cb.greaterThanOrEqualTo(root.get(request.getKey()), request.getValue().toString()), predicate);
+        }
+    },
+
+    LESS_THAN("<") {
+        public <T> Predicate build(Root<T> root, CriteriaBuilder cb, FilterRequest request, Predicate predicate) {
+            return cb.and(cb.lessThan(root.get(request.getKey()), request.getValue().toString()), predicate);
+        }
+    },
+
+    LESS_THAN_EQUAL("<=") {
+        public <T> Predicate build(Root<T> root, CriteriaBuilder cb, FilterRequest request, Predicate predicate) {
+            return cb.and(cb.lessThanOrEqualTo(root.get(request.getKey()), request.getValue().toString()), predicate);
         }
     },
 

@@ -57,10 +57,12 @@ public class SearchRequest implements Serializable {
     }
 
     public static List<FilterRequest> buildFilters(String filterString) {
-        Pattern pattern = Pattern.compile("(\\w+?)(<|>|=|>=|<=|!=|~|!~|=like=)(\\w+?),");
-        Matcher matcher = pattern.matcher(filterString + ",");
+        String[] filterArray = filterString.split(",");
         List<FilterRequest> filters = new ArrayList<>();
-        while (matcher.find()) {
+        for (String filter : filterArray) {
+            Pattern pattern = Pattern.compile("(\\w+?)(<|>|=|>=|<=|!=|~|!~|=like=)(.*)");
+            Matcher matcher = pattern.matcher(filter);
+            matcher.find();
             var filterRequest = FilterRequest.builder()
                     .key(matcher.group(1))
                     .operator(FilterOperator.from(matcher.group(2)))
