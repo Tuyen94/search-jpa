@@ -12,6 +12,7 @@ import org.springframework.data.domain.Pageable;
 
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 import java.util.regex.Matcher;
@@ -64,7 +65,7 @@ public class SearchRequest implements Serializable {
         String[] filterArray = filterString.split(",");
         List<FilterRequest> filters = new ArrayList<>();
         for (String filter : filterArray) {
-            Pattern pattern = Pattern.compile("(\\w+?)(:)(\\w+?)(<|>|=|>=|<=|!=|~|!~|=like=)(.*)");
+            Pattern pattern = Pattern.compile("(\\w+?)(:)(\\w+?)(<|>|==|>=|<=|!=|~|!~|=like=|=bw=)(.*)");
             Matcher matcher = pattern.matcher(filter);
             matcher.find();
             var filterRequest = FilterRequest.builder()
@@ -72,6 +73,7 @@ public class SearchRequest implements Serializable {
                     .key(matcher.group(KEY_GROUP))
                     .operator(FilterOperator.from(matcher.group(OPERATOR_GROUP)))
                     .value(matcher.group(VALUE_GROUP))
+                    .values(Arrays.stream(matcher.group(VALUE_GROUP).split(";")).toList())
                     .build();
             filters.add(filterRequest);
         }

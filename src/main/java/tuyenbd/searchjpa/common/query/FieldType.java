@@ -2,6 +2,7 @@ package tuyenbd.searchjpa.common.query;
 
 import lombok.extern.slf4j.Slf4j;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 
@@ -22,7 +23,7 @@ public enum FieldType {
 
     DATE {
         public Object parse(String value) {
-            return LocalDateTime.parse(value, DateTimeFormatter.ISO_LOCAL_DATE);
+            return LocalDate.parse(value, DateTimeFormatter.ISO_LOCAL_DATE);
         }
     },
 
