@@ -65,15 +65,18 @@ public class SearchRequest implements Serializable {
         String[] filterArray = filterString.split(",");
         List<FilterRequest> filters = new ArrayList<>();
         for (String filter : filterArray) {
-            Pattern pattern = Pattern.compile("(\\w+?)(:)(\\w+?)(<|>|==|>=|<=|!=|~|!~|=like=|=bw=)(.*)");
+            Pattern pattern = Pattern.compile("(\\w+?)(:)(\\w+?)(=[a-zA-Z]*=|[><]=?|!=|=|~|!~)(.*)");
             Matcher matcher = pattern.matcher(filter);
             matcher.find();
+            String value = matcher.group(VALUE_GROUP);
+            List<String> values = value.contains(";") ?
+                    Arrays.stream(value.split(";")).toList() : null;
             var filterRequest = FilterRequest.builder()
                     .fieldType(FieldType.valueOf(matcher.group(TYPE_GROUP)))
                     .key(matcher.group(KEY_GROUP))
                     .operator(FilterOperator.from(matcher.group(OPERATOR_GROUP)))
-                    .value(matcher.group(VALUE_GROUP))
-                    .values(Arrays.stream(matcher.group(VALUE_GROUP).split(";")).toList())
+                    .value(value)
+                    .values(values)
                     .build();
             filters.add(filterRequest);
         }

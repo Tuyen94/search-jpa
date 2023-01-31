@@ -1,62 +1,92 @@
 package tuyenbd.searchjpa.common.query;
 
+import jakarta.persistence.criteria.CriteriaBuilder;
+import jakarta.persistence.criteria.Expression;
+import jakarta.persistence.criteria.Predicate;
+import jakarta.persistence.criteria.Root;
 import lombok.extern.slf4j.Slf4j;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.List;
+import java.util.function.Function;
 
 @Slf4j
 public enum FieldType {
 
     BOOLEAN {
-        public Object parse(String value) {
-            return Boolean.valueOf(value);
+        @Override
+        public <T> Predicate build(Root<T> root, CriteriaBuilder cb, FilterRequest request, Predicate predicate) {
+            return build(root, cb, request, predicate, Boolean.class, Boolean::valueOf);
         }
     },
 
     CHAR {
-        public Object parse(String value) {
-            return value.charAt(0);
+        @Override
+        public <T> Predicate build(Root<T> root, CriteriaBuilder cb, FilterRequest request, Predicate predicate) {
+            return build(root, cb, request, predicate, Character.class, value -> value.charAt(0));
         }
     },
 
     DATE {
-        public Object parse(String value) {
-            return LocalDate.parse(value, DateTimeFormatter.ISO_LOCAL_DATE);
+        @Override
+        public <T> Predicate build(Root<T> root, CriteriaBuilder cb, FilterRequest request, Predicate predicate) {
+            return build(root, cb, request, predicate, LocalDate.class,
+                    value -> LocalDate.parse(request.getValue(), DateTimeFormatter.ISO_LOCAL_DATE));
         }
     },
 
     DATETIME {
-        public Object parse(String value) {
-            return LocalDateTime.parse(value, DateTimeFormatter.ISO_LOCAL_DATE_TIME);
+        @Override
+        public <T> Predicate build(Root<T> root, CriteriaBuilder cb, FilterRequest request, Predicate predicate) {
+            return build(root, cb, request, predicate, LocalDateTime.class,
+                    value -> LocalDateTime.parse(request.getValue(), DateTimeFormatter.ISO_LOCAL_DATE_TIME));
         }
     },
 
     DOUBLE {
-        public Object parse(String value) {
-            return Double.valueOf(value);
+        @Override
+        public <T> Predicate build(Root<T> root, CriteriaBuilder cb, FilterRequest request, Predicate predicate) {
+            return build(root, cb, request, predicate, Double.class, Double::valueOf);
         }
     },
 
     INTEGER {
-        public Object parse(String value) {
-            return Integer.valueOf(value);
+        @Override
+        public <T> Predicate build(Root<T> root, CriteriaBuilder cb, FilterRequest request, Predicate predicate) {
+            return build(root, cb, request, predicate, Integer.class, Integer::valueOf);
         }
     },
 
     LONG {
-        public Object parse(String value) {
-            return Long.valueOf(value);
+        @Override
+        public <T> Predicate build(Root<T> root, CriteriaBuilder cb, FilterRequest request, Predicate predicate) {
+            return build(root, cb, request, predicate, Long.class, Long::valueOf);
         }
     },
 
     STRING {
-        public Object parse(String value) {
-            return value;
+        @Override
+        public <T> Predicate build(Root<T> root, CriteriaBuilder cb, FilterRequest request, Predicate predicate) {
+            return build(root, cb, request, predicate, String.class, String::valueOf);
         }
     };
 
-    public abstract Object parse(String value);
+    public abstract <T> Predicate build(Root<T> root, CriteriaBuilder cb, FilterRequest request, Predicate predicate);
+
+    public <T, Y extends Comparable<? super Y>> Predicate build(Root<T> root, CriteriaBuilder cb,
+                                                                FilterRequest request, Predicate predicate,
+                                                                Class<Y> fieldType,
+                                                                Function<String, Y> mapper) {
+        Expression<Y> key = root.get(request.getKey());
+        if (request.getValues() != null) {
+            List<Y> values = request.getValues().stream().map(mapper).toList();
+            return request.getOperator().buildMultiValue(cb, predicate, key, values);
+        } else {
+            Y value = mapper.apply(request.getValue());
+            return request.getOperator().build(cb, predicate, key, value);
+        }
+    }
 
 }
