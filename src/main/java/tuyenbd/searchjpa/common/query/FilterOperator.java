@@ -11,7 +11,7 @@ import java.util.List;
 @Slf4j
 public enum FilterOperator {
 
-    EQUAL("=") {
+    EQUAL("=", false) {
         @Override
         public <Y extends Comparable<? super Y>> Predicate build(CriteriaBuilder cb, Predicate predicate,
                                                                  Expression<Y> key, Y value) {
@@ -19,7 +19,7 @@ public enum FilterOperator {
         }
     },
 
-    NOT_EQUAL("!=") {
+    NOT_EQUAL("!=", false) {
         @Override
         public <Y extends Comparable<? super Y>> Predicate build(CriteriaBuilder cb, Predicate predicate,
                                                                  Expression<Y> key, Y value) {
@@ -27,7 +27,7 @@ public enum FilterOperator {
         }
     },
 
-    LIKE("=like=") {
+    LIKE("=like=", false) {
         @Override
         public <Y extends Comparable<? super Y>> Predicate build(CriteriaBuilder cb, Predicate predicate,
                                                                  Expression<Y> key, Y value) {
@@ -35,7 +35,7 @@ public enum FilterOperator {
         }
     },
 
-    GREATER_THAN(">") {
+    GREATER_THAN(">", false) {
         @Override
         public <Y extends Comparable<? super Y>> Predicate build(CriteriaBuilder cb, Predicate predicate,
                                                                  Expression<Y> key, Y value) {
@@ -43,7 +43,7 @@ public enum FilterOperator {
         }
     },
 
-    GREATER_THAN_EQUAL(">=") {
+    GREATER_THAN_EQUAL(">=", false) {
         @Override
         public <Y extends Comparable<? super Y>> Predicate build(CriteriaBuilder cb, Predicate predicate,
                                                                  Expression<Y> key, Y value) {
@@ -51,7 +51,7 @@ public enum FilterOperator {
         }
     },
 
-    LESS_THAN("<") {
+    LESS_THAN("<", false) {
         @Override
         public <Y extends Comparable<? super Y>> Predicate build(CriteriaBuilder cb, Predicate predicate,
                                                                  Expression<Y> key, Y value) {
@@ -59,7 +59,7 @@ public enum FilterOperator {
         }
     },
 
-    LESS_THAN_EQUAL("<=") {
+    LESS_THAN_EQUAL("<=", false) {
         @Override
         public <Y extends Comparable<? super Y>> Predicate build(CriteriaBuilder cb, Predicate predicate,
                                                                  Expression<Y> key, Y value) {
@@ -67,7 +67,7 @@ public enum FilterOperator {
         }
     },
 
-    IN("~") {
+    IN("~", true) {
         @Override
         public <Y extends Comparable<? super Y>> Predicate buildMultiValue(CriteriaBuilder cb, Predicate predicate,
                                                                            Expression<Y> key, List<Y> values) {
@@ -77,7 +77,7 @@ public enum FilterOperator {
         }
     },
 
-    NOT_IN("!~") {
+    NOT_IN("!~", true) {
         @Override
         public <Y extends Comparable<? super Y>> Predicate buildMultiValue(CriteriaBuilder cb, Predicate predicate,
                                                                            Expression<Y> key, List<Y> values) {
@@ -87,7 +87,7 @@ public enum FilterOperator {
         }
     },
 
-    BETWEEN("=bw=") {
+    BETWEEN("=bw=", true) {
         @Override
         public <Y extends Comparable<? super Y>> Predicate buildMultiValue(CriteriaBuilder cb, Predicate predicate,
                                                                            Expression<Y> key, List<Y> values) {
@@ -98,9 +98,11 @@ public enum FilterOperator {
     };
 
     public String operator;
+    public boolean isMultiValue;
 
-    FilterOperator(String operator) {
+    FilterOperator(String operator, boolean isMultiValue) {
         this.operator = operator;
+        this.isMultiValue = isMultiValue;
     }
 
     public static FilterOperator from(String operator) {

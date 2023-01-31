@@ -80,7 +80,7 @@ public enum FieldType {
                                                                 Class<Y> fieldType,
                                                                 Function<String, Y> mapper) {
         Expression<Y> key = root.get(request.getKey());
-        if (request.getValues() != null) {
+        if (request.getOperator().isMultiValue) {
             List<Y> values = request.getValues().stream().map(mapper).toList();
             return request.getOperator().buildMultiValue(cb, predicate, key, values);
         } else {
